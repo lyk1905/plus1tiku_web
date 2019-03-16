@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)http://gy.xsks8.com/mtweb/mt/registerForAgent -->
+<html class="gr__gy_xsks8_com"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title></title>
+<!--<base href="http://gy.xsks8.com:80/mtweb/">--><base href=".">
+<link href="data:;base64,=" rel="SHORTCUT ICON">
+<link rel="stylesheet" type="text/css" href="./css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./css/layer.css">
+<link rel="stylesheet" type="text/css" href="./css/commonHeader.css">
+<style type="text/css">
+body{
+width:100%;
+	min-width:1024px;
+	margin:0 auto;
+}
+input{
+	background-color:transparent;
+	border-color:transparent;
+	-webkit-appearance: none;
+	outline: none;
+}
+.loginbtn{
+
+	color:white;
+	outline: none;
+}
+.loginbtn:hover,.loginbtn:focus{
+	background:orange;
+	color:red;
+	outline: none;
+}
+a{
+	color:#969696;
+	outline: none;
+}
+a:hover,a:visited,a:focus{
+	text-decoration: none;
+	cursor:pointer;
+	outline: none;
+}
+p{
+	float:right;
+	margin-right:5px;
+}
+
+p:hover,a:hover{
+	color:#969696;
+	cursor:pointer;
+}
+
+#loginbox{
+	margin:0;
+	padding:0px;
+	overflow:hidden;
+	width:500px;
+	min-height:400px;
+	margin:0px auto;
+	margin-top:100px;
+}
+#loginbox_close{
+background: #2F53B2;height:50px;color:white;line-height:50px;font-size:20px;font-weight:normal;
+}
+.loginfieldbox{
+height:48px; width:310px; border:1px solid #EDEDED;padding:0px;display:inline-block;float:right;
+}
+
+.inputheadimg{
+position: relative;float: left;top: 1em;left: .5em;border: none;outline: none;height:48px;
+}
+.input_common{
+position:relative;border:0px;height:46px;line-height: 44px;font-size:18px;width:308px;color:#b0b0b0;font-size:14px;background: #fff;padding-left:5px;
+}
+
+.input_left{
+	position:relative;float: left; border:1px solid #2F53B2;height:44px;line-height: 44px;font-size:18px;width:200px;
+}
+.input_right{
+position: relative;margin-left:10px ;top: .6em;left: .5em;border: none;outline: none;display: inline;
+}
+.error{
+	color:red;
+	font-size: 12px;
+}
+.code,.code:focus{
+border:1px solid #EDEDED;
+border-left:0px;
+height:48px;
+width:109px;
+cursor:pointer;
+margin:0px;
+float:right;
+line-height:48px;
+text-align: center;
+color:#4577FC;
+background: #fff;
+}
+
+.title_img{
+	height:50px;
+	line-height:50px;
+	width:150px;
+	line-height: 75px;
+	vertical-align: middle;
+	display: inline-block;
+	margin:10px 0px;
+	/* background-image: url(images/section.png);
+	background-repeat: no-repeat;
+	background-position: -620px -177px; */
+	background:none;
+	border-right:1px solid #EEEEEE;
+}
+
+</style>
+<link rel="stylesheet" href="./css/layer.css" id="layuicss-skinlayercss"></head>
+<body data-gr-c-s-loaded="true">
+<input type="hidden" id="path" value="https://plus1tiku.cn/index.php/">
+		<div class="title">
+	<div class="title_img" style="display:none;"><!--<img src="./css/null" height="50" width="50" style="margin-bottom:20px;display:none;">--></div>
+	<div style="display:inline-block;width:610px;float:right;height:70px;padding-top:20px;">
+		<span style="position:relative;height:50px;line-height:50px;font-size:20px;">注册</span>
+		<div style="float:right;display:inline-block;text-align: right;width:50%;height:50px;line-height:50px;"><a href="./login.html">登录</a><div style="margin:0px 3px;display:inline-block;border-left:2px solid #969696;width:1px;height:20px;line-height:20px;background: #EEEEEE;display:none;">&nbsp;</div><a href="https://plus1tiku.cn/index.php/forgetpwdForAgent" style="display:none;">忘记密码</a></div>
+	</div>
+</div>
+	<hr style="width:100%;margin-top:0px;">
+	<div class="container" id="loginbox">
+		<div style="padding:0px 20px 10px 20px;">
+			<form id="register_form" novalidate="novalidate">
+				<input name="agentId" value="6" type="hidden">
+				<div>
+					<div style="height:48px;line-height:48px;display:inline-block;width:130px;text-align: right;">手机号码</div>
+					<div class="loginfieldbox">
+						<input type="tel" name="phone" id="phone" placeholder="请输入手机号码" class="input_common">
+					</div>
+				</div>
+				<div style="margin-top:20px;">
+					<div style="height:48px;line-height:48px;display:inline-block;width:130px;text-align: right;">确认手机号码</div>
+					<div class="loginfieldbox">
+						<input type="tel" name="confirm_phone" id="confirm_phone" placeholder="请再次输入手机号码" class="input_common">
+					</div>
+				</div>
+				<div style="margin-top:20px;">
+					<div style="height:48px;line-height:48px;display:inline-block;width:130px;text-align: right;">邮箱</div>
+					<div class="loginfieldbox">
+						<input type="email" name="email" id="email" placeholder="请输入邮箱" class="input_common">
+					</div>
+				</div>
+				<div style="margin-top:20px;">
+					<div style="height:48px;line-height:48px;display:inline-block;width:130px;text-align: right;">请输入密码</div>
+					<div class="loginfieldbox">
+						<input type="password" name="psword" id="psword" placeholder="请输入密码" class="input_common">
+					</div>
+				</div>
+				<div style="margin-top:20px;">
+					<div style="height:48px;line-height:48px;display:inline-block;width:130px;text-align: right;">确认密码</div>
+					<div class="loginfieldbox">
+						<input type="password" name="confirm_password" id="confirm_password" placeholder="请输入确认密码" class="input_common">
+					</div>
+				</div>
+				
+				<div class="btn btn-success" style="width:310px;margin-top:20px;height:48px;line-height:40px;font-size:18px;background: #4377FF;float:right;border:0px;" id="register_submit">注册</div>
+			</form>
+		</div>
+	</div>
+	<script type="text/javascript" src="./js/jquery.min.js"></script>
+	<script type="text/javascript" src="./js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="./js/layer.js"></script>
+	<script type="text/javascript" src="./js/jquery.validate.min.js"></script>
+	 <script type="text/javascript" src="./js/additional-methods.min.js"></script>
+	<script type="text/javascript">
+		var path;
+		$(function(){
+			path = $('#path').val();
+			
+			
+	        // 手机号码验证
+	        jQuery.validator.addMethod("phone", function(value, element) {
+	            var length = value.length;
+	            var mobile =  /^(\+?\d+)?1\d{10}$/;
+	            return this.optional(element) || (length == 11 && mobile.test(value));
+	        }, "手机号码格式错误."); 
+			
+			
+	        var register_form_validator = $("#register_form").validate({
+	    		rules: {
+	                "psword": {
+	                	required: true,
+	                	minlength: 6,
+	                },
+	                "confirm_password": {
+	                	required: true,
+	                    minlength: 6,
+	                    equalTo: "#psword"
+	                },
+	                "phone" : {
+	                	required: true,
+	                    phone: true
+	                },
+	                "confirm_phone" : {
+	                	required: true,
+	                    phone: true,
+	                    equalTo: "#phone"
+	                },
+	                "email": {
+	                	required: false,
+	                	email: true
+	            	}
+	            },
+	            messages: {
+	            	"psword": {
+	            		required: "密码不能为空.",
+	            		minlength: jQuery.format("密码不能小于{0}个字符!")
+	            	},
+	            	"confirm_password": {
+	            		required: "确认密码不能为空.",
+	            		minlength: jQuery.format("确认密码不能小于{0}个字符!"),
+	            		equalTo: "两次输入密码不一致!"
+	            	},
+	            	"phone" : {
+	            		required: "手机号码不能为空."
+	                },
+	            	"phone" : {
+	            		required: "手机号码不能为空."
+	                },
+	            	"confirm_phone" : {
+	            		required: "确认手机号码不能为空.",
+	            		equalTo: "两次输入手机号码不一致!"
+	                },
+	                "email": {
+	                	required: "电子邮件不能为空.",
+	                	email: "电子邮件格式不正确."
+	            	}
+	        	}
+	    	});
+	        
+	        $("#register_submit").click(function() {
+	        	if(!register_form_validator.form()) {
+	                return;
+	            } 
+	            var formData = $("#register_form").serialize();
+	            $.ajax({
+	                url : path+"user/regist",
+	                type : 'POST',
+	                cache: false,
+	                data : formData,
+	                dataType : 'json',
+	                beforeSend: function () {
+	                    $("#register_submit").text("注册中...");
+	    			},
+	                error : function(data, status) {
+	                	layer.msg("网络失败，请稍后重试",{icon: 2});
+	                },
+	                success :  function(data, status) {
+	                    if (data.retcode < 0) {
+	                        //layer.msg(data.resultmsg,{icon: 2});
+	                        if(data.retcode == -1){$('#phone').after('<label class="error" for="phone">' + data.retmsg + '</label>');$('#phone').focus();}
+	                        else if(data.retcode == -2){$('#email').after('<label class="error" for="code">'+data.retmsg+'</label>');$('#code').focus();}
+	                        return;
+	                    }else{
+	                    	layer.msg(data.retmsg, {icon: 1,time: 2000}, function(){
+	                    		window.location = "./login.html";
+	                    	});
+	                    	
+	                    }
+	                },
+	                complete: function () {
+	                    $('#register_submit').prop('disabled', false).removeClass('ui-disabled');
+	                    $("#register_submit").text("注册");
+	    			}
+			    });
+	            return false;
+
+	    	});
+	        
+		});
+		
+	</script>
+
+</body></html>
