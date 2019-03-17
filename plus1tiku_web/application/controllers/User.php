@@ -6,7 +6,7 @@ class User extends TK_Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('user', 'user_model');
+        $this->load->model('user_model', 'user_model');
     }
 
     /** METHOD: POST
@@ -107,6 +107,7 @@ class User extends TK_Controller {
             $data['extras']['selectCourseName'] = $subject->subject_name;
         }
 
+        //把最近一次登录时间更新到用户记录中
         $userInfo['last_login_time'] = date('Y-m-d h:i:s', time());
         $update = $this->user_model->updateUserInfo($userInfo);
         $this->log_info($update);
