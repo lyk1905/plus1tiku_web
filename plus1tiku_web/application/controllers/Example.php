@@ -29,5 +29,6 @@ class Example extends CI_Controller {
         {
                 //phpinfo();
                 var_dump($this->example_model->getDbConn());
+                log_message('error', 'this is a log example');
         }
 }
