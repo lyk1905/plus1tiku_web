@@ -11,18 +11,34 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+class ClassInfo:
+    def __init__(self, class_id, class_name):
+        self.class_id = class_id
+        self.class_name = class_name 
+
+
+class SubClassInfo:
+    def __init__(self, class_info, subclass_id, subclass_name):
+        self.class_id = class_info.class_id
+        self.class_name = class_info.class_name
+        self.subclass_id = subclass_id
+        self.subclass_name = subclass_name
+
+
 class CourseInfo:
-    def __init__(self, class_id, subclass_id, course_id):
+    def __init__(self, class_id, subclass_id, course_id, course_name):
         self.class_id = class_id
         self.subclass_id = subclass_id
         self.course_id = course_id
+        self.course_name = course_name
 
 
 class ExamInfo:
-    def __init__(self, class_id, subclass_id, course_id, chapter_id, exam_name):
-        self.class_id = class_id
-        self.subclass_id = subclass_id
-        self.course_id = course_id
+    def __init__(self, course_info, chapter_id, exam_name):
+        self.class_id = course_info.class_id
+        self.subclass_id = course_info.subclass_id
+        self.course_id = course_info.course_id
+        self.course_name = course_info.course_name
         self.chapter_id = chapter_id
         self.exam_name = exam_name
 
@@ -54,13 +70,6 @@ session = str()
 for tmp in tmp_vec:
     if "SESSION" in tmp:
         session = tmp.strip(' ')
-# session = str()
-# for tmp in tmp_vec:
-#     if "SESSION" in tmp:
-#         session = tmp[8:]
-#         session = session.strip(' ')
-#print session
-
 headers["Cookie"] = session
 
 # get my course
@@ -74,42 +83,49 @@ get_all_class_response = urlOpen(get_all_class_request)
 
 # deal all class id list
 all_class_info_dict = json.loads(get_all_class_response.read())
-all_class_id_list = list()
+class_info_dict = dict()
 for item in all_class_info_dict["ccList"]:
-    all_class_id_list.append(item["id"])
+    class_info = ClassInfo(item["id"], item["name"])
+    class_info_dict[item["id"]] = class_info
 
 # class id = 6 是财务会计
 # deal subclass info
 all_subclass_info = dict()   # key is class id, value is list of sub class id
-for class_id in all_class_id_list:
+for class_id in class_info_dict.keys():
     all_subclass_info[class_id] = list()
 
 for item in all_class_info_dict["cscList"]:
-    if int(item["pId"]) not in all_subclass_info.keys():
+    if int(item["pId"] not in all_subclass_info.keys()):
         continue
 
     class_id = int(item["pId"])
+    class_info = class_info_dict[class_id]
     subclass_id = int(item["id"])
-    all_subclass_info[class_id].append(subclass_id)
-
+    subclass_name = item["name"]
+    subclass_info = SubClassInfo(class_info, subclass_id, subclass_name)
+    all_subclass_info[class_id].append(subclass_info)
 
 # get detail course list
 # http://gy.xsks8.com/mtweb//mt/course/6/9/list?_=1552817299558
 course_info_list = list()
-for class_id, subclass_id_list in all_subclass_info.items():
+for class_id, subclass_info_list in all_subclass_info.items():
     # TODO 先拉取财务会计的题目
     if class_id != 6:
         continue
 
-    for subclass_id in subclass_id_list:
-        course_list_url = "http://gy.xsks8.com/mtweb//mt/course/%s/%s/list?_=%s" % (class_id, subclass_id, str(time.time() * 100))
+    for subclass_info in subclass_info_list:
+        # TODO 先拉取初级会计的题目
+        if subclass_info.subclass_id != 9:
+            continue
+
+        course_list_url = "http://gy.xsks8.com/mtweb//mt/course/%s/%s/list?_=%s" % (class_id, subclass_info.subclass_id, str(time.time() * 100))
         course_list_request = urllib2.Request(course_list_url, headers=headers)
         course_list_response = urlOpen(course_list_request)
 
         course_list_tmp = json.loads(course_list_response.read())
 
         for item in course_list_tmp:
-            course_info = CourseInfo(item["iclassid"], item["isubclassid"], item["icourseid"])
+            course_info = CourseInfo(class_id, item["isubclassid"], item["icourseid"], item["ccoursename"])
             course_info_list.append(course_info)
 
 # get exam list
@@ -117,9 +133,6 @@ for class_id, subclass_id_list in all_subclass_info.items():
 
 exam_list = list()
 for course_info in course_info_list:
-    if len(exam_list) != 0:
-        break      # test
-
     exam_list_url = "http://gy.xsks8.com/mtweb//mt/chaptertree/%s/%s?_=%s" % (1, course_info.course_id, str(time.time() * 100))
     exam_list_request = urllib2.Request(exam_list_url, headers=headers)
     exam_list_response = urlOpen(exam_list_request)
@@ -127,8 +140,8 @@ for course_info in course_info_list:
     exam_list_tmp = json.loads(exam_list_response.read())
 
     for item in exam_list_tmp:
-        if item["ballowtest"] is True:
-            exam_info = ExamInfo(course_info.class_id, course_info.subclass_id, course_info.course_id, item["chapterId"], item["name"])
+        if item["pId"] != 0:
+            exam_info = ExamInfo(course_info, item["chapterId"], item["name"])
             exam_list.append(exam_info)
 
 
@@ -141,6 +154,10 @@ for exam in exam_list:
     exam_detail_url = "http://gy.xsks8.com/mtweb/mt/chapterpractise/%s/1/%s?%s" % (exam.course_id, exam.chapter_id, data)
     exam_detail_request = urllib2.Request(exam_detail_url, headers=headers)
     exam_detail_response = urlOpen(exam_detail_request)
-    file_name = os.path.join(os.path.abspath('.'), "exam_list/"+exam.exam_name)
+
+    file_path = os.path.join(os.path.abspath('.'), "exam_list/%s" % exam.course_name)
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+    file_name = os.path.join(file_path, exam.exam_name)
     file = open(file_name, "w+")
     file.write(exam_detail_response.read())
