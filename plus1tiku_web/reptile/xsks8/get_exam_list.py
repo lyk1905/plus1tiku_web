@@ -43,6 +43,35 @@ class ExamInfo:
         self.exam_name = exam_name
 
 
+class ExamDetail:
+    class QuestionType:
+        def __init__(self):
+            self.quesTypeDesc = str()
+            self.showType = str()
+            self.index = 0
+            self.typeId = 0
+
+    class QuestionItem:
+        def __init__(self):
+            self.subjectid = 0
+            self.courseid = 0
+            self.subjectType = 0
+            self.index = 0
+            self.score = 0
+            self.title = str()
+            self.question = str()
+            self.rightAnswer = str()
+            self.answerNum = 0
+            self.analysis = str()
+            self.typeId = 0
+            self.showType = str()
+
+    def __init__(self, exam_info):
+        self.examName = exam_info.exam_name
+        self.courseName = exam_info.course_name
+        self.types = list()     # 题目类型
+        self.items = list()     # 题目
+
 def urlOpen(request):
     response = None
     try:
@@ -52,6 +81,14 @@ def urlOpen(request):
     except urllib2.URLError, e:
         print e.reason
     return response
+
+def dealExamDetail(source_data):
+    detail_data = dict()
+
+
+
+    detail_data_json = json.dumps(detail_data)
+    return detail_data_json
 
 # TODO 后续需要改成通过配置文件读取账号密码
 headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36",
