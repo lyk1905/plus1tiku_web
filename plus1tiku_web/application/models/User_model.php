@@ -6,7 +6,7 @@ class User_model extends TK_Model {
     //新增用户，用于注册
     public function insertUser($phone, $email, $passwd){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret,'phone'=>$phone));
             return $ret;
@@ -39,7 +39,7 @@ class User_model extends TK_Model {
     //查询用户信息，用于登录
     public function getUserInfo($username){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret,'username'=>$username));
             return $ret;
@@ -114,7 +114,7 @@ class User_model extends TK_Model {
             $new['passwd'] = $user['passwd'];
         }
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret,'user'=>$user));
             return $ret;

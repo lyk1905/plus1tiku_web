@@ -26,15 +26,15 @@ class User extends TK_Controller {
         $email = $this->input->get_post("email", true);
         $psword = $this->input->get_post("psword", true);
 
-        if($phone === ""){
+        if($phone == ""){
             $this->ret_json(100001, '电话号码未填写');
             return ;
         }
-        if($email === ""){
+        if($email == ""){
             $this->ret_json(100001, '电子邮件未填写');
             return ;
         }
-        if($psword === ""){
+        if($psword == ""){
             $this->ret_json(100001, '密码未填写');
             return ;
         }
@@ -106,7 +106,7 @@ class User extends TK_Controller {
         }
 
         $now = date('Y-m-d h:i:s', time());
-        $data = array('extras' => $userInfo['last_login_time']);
+        $data = array('extras' => array('last_login_time' => $userInfo['last_login_time']));
         $selectinfo = $userInfo['last_choose_subject'];
         if($selectinfo && $selectinfo != ''){
             $subject = json_decode($selectinfo);
@@ -131,7 +131,7 @@ class User extends TK_Controller {
     public function changeDefault(){
         $username = $this->getUserName();
         $subject_id = $this->input->get_post("subject_id", true);
-        if($subject_id === "" || $subject_id == 0){
+        if($subject_id == "" || $subject_id == 0){
             $this->ret_json(100001, '请选择科目');
             return ;
         }
@@ -154,8 +154,8 @@ class User extends TK_Controller {
         $userInfo = $res['user'];
         $userInfo['last_choose_subject'] = $last_choose;
         $update = $this->user_model->updateUserInfo($userInfo);
-        if(!isset($res['retcode']) || $res['retcode'] != 0){
-            $this->ret_json(100009, '记录选择科目，请刷新重试');
+        if(!isset($update['retcode']) || $update['retcode'] != 0){
+            $this->ret_json(100009, '记录选择科目失败，请刷新重试');
             return ;
         }
 

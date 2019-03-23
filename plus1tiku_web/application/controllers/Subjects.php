@@ -167,11 +167,11 @@ class Subjects extends TK_Controller {
         $uid = $this->getUid();
         $subject_id = $this->input->get_post("subject_id", true);
         $practice_type = $this->input->get_post("type", true);
-        if($subject_id === "" || $subject_id == 0){
+        if($subject_id == "" || $subject_id == 0){
             $this->ret_json(100001, '请选择科目');
             return ;
         }
-        if($practice_type === "" || $practice_type == 0){
+        if($practice_type == "" || $practice_type == 0){
             $this->ret_json(100001, '请选择练习方式');
             return ;
         }
@@ -222,7 +222,7 @@ class Subjects extends TK_Controller {
     public function subjectStatis(){
         $uid = $this->getUid();
         $subject_id = $this->input->get_post("subject_id", true);
-        if($subject_id === "" || $subject_id == 0){
+        if($subject_id == "" || $subject_id == 0){
             $this->ret_json(100001, '请选择科目');
             return ;
         }

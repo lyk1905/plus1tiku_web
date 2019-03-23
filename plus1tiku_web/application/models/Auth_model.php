@@ -85,7 +85,7 @@ class Auth_model extends TK_Model
     //激活前判断科目和授权码是否一致
     public function getAuthByCode($code){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret,'code'=>$code));
             return $ret;
@@ -131,7 +131,7 @@ class Auth_model extends TK_Model
     //@TODO 分页查询，估计这个业务很长时间都不会用到
     public function getAuthRecordList($uid, $subject_id = 0){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret, 'uid'=>$uid, 'subject_id'=>$subject_id));
             return $ret;
@@ -175,7 +175,7 @@ class Auth_model extends TK_Model
     //更新授权记录
     public function updateAuthRecord($record){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret, 'record'=>$record));
             return $ret;

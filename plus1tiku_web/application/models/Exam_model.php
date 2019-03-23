@@ -24,7 +24,7 @@ class Exam_model extends TK_Model {
      */
     public function getExamInfo($exam_id){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret, 'exam_id'=>$exam_id));
             return $ret;
@@ -69,7 +69,7 @@ class Exam_model extends TK_Model {
     //拉取试卷的基本信息
     public function getExamBaseInfoList($subject_id, $exam_type = 0, $exam_id = 0){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret, 'subject_id'=>$subject_id, 'exam_type'=>$exam_type));
             return $ret;

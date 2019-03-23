@@ -31,7 +31,7 @@ class Records_model extends TK_Model {
      */
     public function getRecordOverLook($uid, $subject_id, $practice_type = 0, $practice_id = 0){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret, 'uid'=>$uid, 'subject_id'=>$subject_id, 'practice_type'=>$practice_type));
             return $ret;
@@ -81,7 +81,7 @@ class Records_model extends TK_Model {
 
     public function getRecord($uid, $subject_id, $record_id){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret, 'uid'=>$uid, 'subject_id'=>$subject_id, 'record_id'=>$record_id));
             return $ret;
@@ -214,7 +214,7 @@ class Records_model extends TK_Model {
 
     public function insertRecord($record, $statis){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret,'record'=>$record));
             return $ret;
@@ -294,7 +294,7 @@ class Records_model extends TK_Model {
      */
     public function updateRecord($record, $statis){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret,'record'=>$record));
             return $ret;

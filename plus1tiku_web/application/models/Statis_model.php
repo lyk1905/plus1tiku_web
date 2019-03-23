@@ -27,7 +27,7 @@ class Statis_model extends TK_Model
      */
     public function getStatisInfo($uid, $subject_id, $auth_id = 0, $exam_id = 0){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret, 'uid'=>$uid, 'subject_id'=>$subject_id, 'auth_id'=>$auth_id, 'exam_id'=>$exam_id));
             return $ret;
@@ -72,7 +72,7 @@ class Statis_model extends TK_Model
 
     public function initStatis($uid, $subject_id, $auth_id, $exam_id, $question_num){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret,'uid'=>$uid, 'subject_id'=>$subject_id, 'exam_id'=>$exam_id, 'auth_id'=>$auth_id));
             return $ret;
@@ -161,7 +161,7 @@ class Statis_model extends TK_Model
 
     public function updateStatis($statis){
         $conn = $this->load->database('tiku', TRUE);
-        if(!$conn){
+        if(!$conn->conn_id){
             $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
             $this->log_err(array('ret'=>$ret,'$statis'=>$statis));
             return $ret;
