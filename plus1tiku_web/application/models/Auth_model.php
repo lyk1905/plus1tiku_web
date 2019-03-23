@@ -1,6 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+class AuthState {
+    const INIT = 1;
+    const ACTIVED = 2;
+    const EXPIRED = 3; //已过期
+}
+
+
 class AuthType
 {
     const NO_AUTH = 1; //无权限
@@ -198,13 +205,14 @@ class Auth_model extends TK_Model
         $conn->where('auth_id', $record['auth_id']);
         $conn->where('data_ver', $record['data_ver']);
         if(!$conn->update(self::TAB_NAME, $new)){
+            $err = $conn->error();
             if($conn->affected_rows() === 0){
                 $ret = array('retcode'=>200104, 'retmsg'=> 'user not exist or cas err');
-                $this->log_err(array('ret'=>$ret, 'record'=>$record, 'err'=>$conn->error()));
+                $this->log_err(array('ret'=>$ret, 'record'=>$record, 'err'=>$err));
                 return $ret;
             }else{
                 $ret = array('retcode'=>200105, 'retmsg'=> 'update err');
-                $this->log_err(array('ret'=>$ret, 'record'=>$record, 'err'=>$conn->error()));
+                $this->log_err(array('ret'=>$ret, 'record'=>$record, 'err'=>$err));
                 return $ret;
             }
         }

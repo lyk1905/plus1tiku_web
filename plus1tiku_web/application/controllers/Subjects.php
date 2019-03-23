@@ -1,12 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class SubjectsState {
-    const INIT = 1;
-    const ACTIVED = 2;
-    const EXPIRED = 3; //已过期
-}
-
 class Subjects extends TK_Controller {
     public function __construct()
     {
@@ -28,14 +22,14 @@ class Subjects extends TK_Controller {
         $data = array('list' => array());
         $now = date('Y-m-d h:i:s', time());
         foreach($auths['records'] as $record){
-            if($record->state == SubjectsState::ACTIVED
-                && $now < $record->validity_end_time)
-                $subject_id = $record->subject_id;
+            if($record['state'] == AuthState::ACTIVED
+                && $now < $record['validity_end_time'])
+                $subject_id = $record['subject_id'];
                 $subject_name = $this->subject_model->getNameBySubjectId($subject_id);
                 $item = array(
                     'subject_id' => $subject_id,
                     'subject_name' => $subject_name,
-                    'validate_time' => $record->validity_end_time
+                    'validate_time' => $record['validity_end_time']
                 );
 
                 array_push($data['list'], $item);
@@ -68,8 +62,8 @@ class Subjects extends TK_Controller {
         $isExpired  = False;
         $now = date('Y-m-d h:i:s', time());
         foreach($auths['records'] as $record){
-            if($record->state == SubjectsState::ACTIVED){
-                if($now < $record->validity_end_time){
+            if($record['state'] == AuthState::ACTIVED){
+                if($now < $record['validity_end_time']){
                     $isActived = True;
                     break;
                 }else{
@@ -96,11 +90,11 @@ class Subjects extends TK_Controller {
         $uid = $this->getUid();
         $subject_id = $this->input->get_post("subject_id", true);
         $code = $this->input->get_post("auth_code", true);
-        if($subject_id === "" || $subject_id == 0){
+        if($subject_id == "" || $subject_id == 0){
             $this->ret_json(100001, '请选择科目');
             return ;
         }
-        if($code === "" || $code == 0){
+        if($code == ""){
             $this->ret_json(100001, '请填写激活码');
             return ;
         }
@@ -113,10 +107,10 @@ class Subjects extends TK_Controller {
         //重入判定
         $now = date('Y-m-d h:i:s', time());
         $record = $auth['record'];
-        if($record->state == SubjectsState::ACTIVED
-           && $record->subject_id == $subject_id
-           && $record->active_user_id == $uid){
-            if($record->validity_end_time > $now){
+        if($record['state'] == AuthState::ACTIVED
+           && $record['subject_id'] == $subject_id
+           && $record['active_user_id'] == $uid){
+            if($record['validity_end_time'] > $now){
                 $this->ret_json(0, 'success');
                 return ;
             }else {
@@ -126,24 +120,24 @@ class Subjects extends TK_Controller {
         }
 
         //是否允许用来激活本科目，以下case不允许
-        if($record->subject_id != $subject_id){//case1: 科目不匹配
+        if($record['subject_id'] != $subject_id){//case1: 科目不匹配
             $this->ret_json(100003, '其他科目的激活码不能用于激活本科目，请输入正确的激活码或更换科目');
             return ;
-        }else if($record->active_user_id != 0
-            || $record->state != SubjectsState::INIT){ //case2：已经被其他账号激活
+        }else if($record['active_user_id'] != 0
+            || $record->state != AuthState::INIT){ //case2：已经被其他账号激活
             $this->ret_json(100004, '激活码已被使用');
             return ;
-        }else if(time() - strtotime($record->create_time) > $record->code_validity_day * 86400){
+        }else if(time() - strtotime($record['create_time']) > $record['code_validity_day'] * 86400){
             $this->ret_json(100005, '激活码已过期');
             return ;
         }
 
         //那就激活它
-        $record->active_user_id = $uid;
-        $record->state = SubjectsState::ACTIVED;
-        $record->active_time = $now;
-        $today = date('Y-m-d', time()).' 23:59:59';
-        $record->validity_end_time = date('Y-m-d', strtotime($today) + $record->auth_validity_day);
+        $record['active_user_id'] = $uid;
+        $record['state'] = AuthState::ACTIVED;
+        $record['active_time'] = $now;
+        $today = date('Y-m-d', time()).' 00:00:00';
+        $record['validity_end_time'] = strtotime($today) + $record['auth_validity_day'] * 86400;
         $res = $this->auth_model->updateAuthRecord($record);
         if(!isset($res['retcode'])){
             $this->ret_json(100006, '激活失败，请刷新重试');
@@ -236,7 +230,7 @@ class Subjects extends TK_Controller {
         $auth_type = AuthType::GUEST_AUTH;
         $now = date('Y-m-d h:i:s', time());
         foreach($auths['records'] as $record){
-            if($record->state == SubjectsState::ACTIVED){
+            if($record->state == AuthState::ACTIVED){
                 if($now < $record['validity_end_time']){
                     $auth_type = $record['type'];
                     $auth_id = $record['auth_id'];

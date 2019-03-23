@@ -23,13 +23,14 @@ class User_model extends TK_Model {
             'passwd' => $passwd,
             'data_ver'=>1);
 		if(!$conn->insert(self::TAB_NAME, $insrt_data)){
-            if($conn->error()['code'] == 1062){
-                $ret = array('retcode'=>200000, 'retmsg'=>$conn->error()['message']);
-                $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$conn->error()));
+		    $err = $conn->error();
+            if($err['code'] == 1062){
+                $ret = array('retcode'=>200000, 'retmsg'=>$err['message']);
+                $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$err));
                 return $ret;
             }else{
-                $ret = array('retcode'=>200001, 'retmsg'=>$conn->error()['message']);
-                $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$conn->error()));
+                $ret = array('retcode'=>200001, 'retmsg'=>$err['message']);
+                $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$err));
                 return $ret;
             }
         }
@@ -101,16 +102,16 @@ class User_model extends TK_Model {
         if(isset($user['acct_state']) && $user['acct_state'] > 0){
             $new['acct_state'] = $user['acct_state'];
         }
-        if(isset($user['mail']) && $user['mail'] > 0){
+        if(isset($user['mail']) && $user['mail'] != ''){
             $new['mail'] = $user['mail'];
         }
-        if(isset($user['last_login_time']) && $user['last_login_time'] > 0){
+        if(isset($user['last_login_time']) && $user['last_login_time'] != ''){
             $new['last_login_time'] = $user['last_login_time'];
         }
-        if(isset($user['last_choose_subject']) && $user['last_choose_subject'] > 0){
+        if(isset($user['last_choose_subject']) && $user['last_choose_subject'] != ''){
             $new['last_choose_subject'] = $user['last_choose_subject'];
         }
-        if(isset($user['passwd']) && $user['passwd'] > 0){
+        if(isset($user['passwd']) && $user['passwd'] != ''){
             $new['passwd'] = $user['passwd'];
         }
         $conn = $this->load->database('tiku', TRUE);
@@ -123,13 +124,14 @@ class User_model extends TK_Model {
         $conn->where('uid', $user['uid']);
         $conn->where('data_ver', $user['data_ver']);
         if(!$conn->update(self::TAB_NAME, $new)){
+            $err = $conn->error();
             if($conn->affected_rows() === 0){
                 $ret = array('retcode'=>200004, 'retmsg'=> 'user not exist or cas err');
-                $this->log_err(array('ret'=>$ret, 'user'=>$user, 'err'=>$conn->error()));
+                $this->log_err(array('ret'=>$ret, 'user'=>$user, 'err'=>$err));
                 return $ret;
             }else{
                 $ret = array('retcode'=>200005, 'retmsg'=> 'update err');
-                $this->log_err(array('ret'=>$ret, 'user'=>$user, 'err'=>$conn->error()));
+                $this->log_err(array('ret'=>$ret, 'user'=>$user, 'err'=>$err));
                 return $ret;
             }
         }

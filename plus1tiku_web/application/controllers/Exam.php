@@ -19,7 +19,7 @@ class Exam extends TK_Controller {
     {
         parent::__construct();
         $this->load->model('auth_model', 'auth_model');
-        $this->load->model('subjects_model','subjects_mode');
+        $this->load->model('subjects_model','subjects_model');
         $this->load->model('records_model','records_model');
         $this->load->model('statis_model','statis_model');
         $this->load->model('exam_model','exam_model');
@@ -67,7 +67,7 @@ class Exam extends TK_Controller {
         $auth_id = 0;
         $now = date('Y-m-d h:i:s', time());
         foreach($auths['records'] as $record){
-            if($record->state == SubjectsState::ACTIVED){
+            if($record['state'] == AuthState::ACTIVED){
                 if($now < $record['validity_end_time']){
                     $auth_type = $record['type'];
                     $auth_id = $record['auth_id'];
@@ -202,14 +202,12 @@ class Exam extends TK_Controller {
 
         $auth_type = AuthType::GUEST_AUTH;
         $auth_id = 0;
-        $now = date('Y-m-d h:i:s', time());
         foreach($auths['records'] as $record){
-            if($record->state == SubjectsState::ACTIVED){
-                if($now < $record['validity_end_time']){
-                    $auth_type = $record['type'];
-                    $auth_id = $record['auth_id'];
-                    break;
-                }
+            if($record['state'] == AuthState::ACTIVED
+               && time() < $record['validity_end_time']){
+                $auth_type = $record['type'];
+                $auth_id = $record['auth_id'];
+                break;
             }
         }
         //step2: 获取试卷列表
@@ -308,7 +306,7 @@ class Exam extends TK_Controller {
             $this->ret_json(100001, '请选择具体试卷');
             return;
         }
-        if ($doanswers == "" || $doanswers == 0) {
+        if ($doanswers == "") {
             $this->ret_json(100001, '提交答案失败，请重新提交重试');
             return;
         }
@@ -333,7 +331,7 @@ class Exam extends TK_Controller {
         $auth_id = 0;
         $now = date('Y-m-d h:i:s', time());
         foreach($auths['records'] as $record){
-            if($record->state == SubjectsState::ACTIVED){
+            if($record['state'] == AuthState::ACTIVED){
                 if($now < $record['validity_end_time']){
                     $auth_type = $record['type'];
                     $auth_id = $record['auth_id'];
@@ -754,7 +752,7 @@ class Exam extends TK_Controller {
             $this->ret_json(100001, '请选择具体试卷');
             return ;
         }
-        if($answer == "" || $answer == 0){
+        if($answer == ""){
             $this->ret_json(100001, '提交内容缺少选择的答案');
             return ;
         }

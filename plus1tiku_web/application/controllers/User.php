@@ -7,7 +7,7 @@ class User extends TK_Controller {
     {
         parent::__construct();
         $this->load->model('user_model', 'user_model');
-        $this->load->model('subjects_model','subjects_mode');
+        $this->load->model('subjects_model','subjects_model');
     }
 
     /** METHOD: POST
@@ -135,7 +135,7 @@ class User extends TK_Controller {
             $this->ret_json(100001, '请选择科目');
             return ;
         }
-        $subject_name = $this->subject_model->getNameBySubjectId($subject_id);
+        $subject_name = $this->subjects_model->getNameBySubjectId($subject_id);
         $last_choose = json_encode(array('subject_id' => $subject_id, 'subject_name' => $subject_name));
 
         $res = $this->user_model->getUserInfo($username);
