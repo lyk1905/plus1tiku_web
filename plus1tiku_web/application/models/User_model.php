@@ -23,12 +23,12 @@ class User_model extends TK_Model {
             'passwd' => $passwd,
             'data_ver'=>1);
 		if(!$conn->insert(self::TAB_NAME, $insrt_data)){
-            if($conn->error()->code == 1062){
-                $ret = array('retcode'=>200000, 'retmsg'=>$conn->error()->message);
+            if($conn->error()['code'] == 1062){
+                $ret = array('retcode'=>200000, 'retmsg'=>$conn->error()['message']);
                 $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$conn->error()));
                 return $ret;
             }else{
-                $ret = array('retcode'=>200001, 'retmsg'=>$conn->error()->message);
+                $ret = array('retcode'=>200001, 'retmsg'=>$conn->error()['message']);
                 $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$conn->error()));
                 return $ret;
             }
