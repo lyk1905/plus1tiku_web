@@ -156,7 +156,7 @@ for exam in exam_list:
     exam_detail_request = urllib2.Request(exam_detail_url, headers=headers)
     exam_detail_response = urlOpen(exam_detail_request)
 
-    exam_detail = ExamDetail()
+    exam_detail = ExamDetail(exam)
     exam_detail_json = exam_detail.parse(exam_detail_response.read())
 
     file_path = os.path.join(os.path.abspath('.'), "exam_list/%s" % exam.course_name)
