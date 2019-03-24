@@ -189,8 +189,9 @@ class Subjects extends TK_Controller {
             }
          */
         $exam_total_num = 0;
+        $subject_name = $this->subjects_model->getNameBySubjectId($subject_id);
         $process = array('subject_id' => $subject_id,
-            'subject_name' => $this->subjects_model->getNameBySubjectId($subject_id),
+            'subject_name' => $subject_name,
             'list' => array());
         foreach ($records['records'] as $recd){
             $item = array(
