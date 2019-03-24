@@ -139,7 +139,7 @@ class Exam extends TK_Controller {
                     'last_excs_time' => $item['update_time']
                 );
                 $exam_list[$exam_id]['statis'] = array('lst_wrng_num' => $item['has_err_num'],
-                    'acc_wrng_num' => $item['acc_wrng_num']);
+                    'acc_wrng_num' => $item['last_err_num']);
 
             }
         }
@@ -196,7 +196,7 @@ class Exam extends TK_Controller {
         //step1: 判断用户的权限类型
         $auths = $this->auth_model->getAuthRecordList($uid, $subject_id);
         if(!isset($auths['retcode']) || $auths['retcode'] !=0){
-            $this->ret_json(100001, '查询已购买课程失败');
+            $this->ret_json(100002, '查询已购买课程失败');
             return ;
         }
 
@@ -213,22 +213,24 @@ class Exam extends TK_Controller {
         //step2: 获取试卷列表
         $exam = $this->exam_model->getExamInfo($exam_id);
         if(!isset($exam['retcode']) || $exam['retcode'] !=0){
-            $this->ret_json(100001, '获取试卷信息失败');
+            $this->ret_json(100003, '获取试卷信息失败');
             return ;
         }
         if(!$this->auth_model->hasAuth($auth_type, $exam['exam']['requir_auth'])){
-            $this->ret_json(100001, '请激活当前科目');
+            $this->ret_json(100004, '请激活当前科目');
             return ;
         }
 
         //step3：如果是错题集，需要根据练习记录过滤题目，只返回错误的题
         $all_question = $exam['exam']['questions'];
-        $ret_question = $all_question;
+        $ret_question = (array)$all_question;
+        $ret_question['exam_id'] = $exam['exam']['exam_id'];
+        $ret_question['exam_name'] = $exam['exam']['exam_name'];
         if($practice_type == PracticeType::PRCT_TYPE_LST_ERR
             || $practice_type == PracticeType::PRCT_TYPE_HAS_ERR){
             $statis = $this->statis_model->getStatisInfo($uid, $subject_id, $auth_id);
             if(!isset($statis['retcode']) || $statis['retcode'] !=0){
-                $this->ret_json(100003, '查询课程练习进度失败');
+                $this->ret_json(100005, '查询课程练习进度失败');
                 return ;
             }
             $ret_question['items'] = array();
@@ -329,10 +331,9 @@ class Exam extends TK_Controller {
 
         $auth_type = AuthType::GUEST_AUTH;
         $auth_id = 0;
-        $now = date('Y-m-d h:i:s', time());
         foreach($auths['records'] as $record){
             if($record['state'] == AuthState::ACTIVED){
-                if($now < $record['validity_end_time']){
+                if(time() < $record['validity_end_time']){
                     $auth_type = $record['type'];
                     $auth_id = $record['auth_id'];
                     break;
@@ -448,6 +449,20 @@ class Exam extends TK_Controller {
         return ;
     }
 
+    private function countRecord($records, &$do_num, &$has_err_num, &$last_err_num){
+        $has_err_num = 0;
+        $last_err_num = 0;
+        $do_num = count($records);
+        foreach($records as $r){
+            if(!isset($r['right_times']) || $r['right_times'] == 0){
+                $has_err_num += 1;
+            }
+            if(isset($r['err_times']) && $r['err_times'] > 0){
+                $last_err_num += 1;
+            }
+        }
+    }
+
     /**
     'practice_type' => $record['practice_type'],
     'exam_id' => $record['exam_id'],
@@ -473,6 +488,7 @@ class Exam extends TK_Controller {
      */
     private function makeNewRecordsAndStatis($practice_type, $exam, $doanswers, $statis, &$new_record, &$new_statis){
         //part1: make practice records
+        $new_record['uid'] = $statis['uid'];
         $new_record['practice_type'] = $practice_type;
         $new_record['exam_id'] = $exam['exam_id'];
         $new_record['exam_name'] = $exam['exam_name'];
@@ -482,7 +498,9 @@ class Exam extends TK_Controller {
 
         $err_num = 0;
         $question_idx = array();
-        foreach ($exam['questions']['items'] as $q){
+        $e = (array)$exam['questions'];
+        foreach ($e['items'] as $q){
+            $q = (array)$q;
             $question_idx[$q['question_id']] = $q;
         }
         /**
@@ -504,6 +522,7 @@ class Exam extends TK_Controller {
         $records = array();
         $answer_idx = array();
         foreach($doanswers as $a){
+            $a = (array)$a;
             $question_id = $a['question_id'];
             $answer_idx[$question_id] = $a;
             if(isset($question_idx[$question_id])){
@@ -528,9 +547,13 @@ class Exam extends TK_Controller {
                             'right_time' => $right_time);
             }
         }
-        $new_record['do_num'] = count($records);
-        $new_record['has_err_num'] = $err_num;
-        $new_record['last_err_num'] = $err_num;
+        $do_num = 0;
+        $has_err_num = 0;
+        $last_err_num = 0;
+        $this->countRecord($records, $do_num, $has_err_num, $last_err_num);
+        $new_record['do_num'] = $do_num;
+        $new_record['has_err_num'] = $has_err_num;
+        $new_record['last_err_num'] = $last_err_num;
         $new_record['records'] = $records;
 
         //part2: update statis ret: do_num, has_err_num, last_err_num, practice_detail
@@ -541,23 +564,18 @@ class Exam extends TK_Controller {
             }
         }
 
-        $do_num = $statis['do_num'];
-        $has_err_num = $statis['has_err_num'];
-        $last_err_num = $statis['last_err_num'];
         $new_statis = $statis;
         $new_statis['practice_detail'] = array();
         foreach($records as $r){
-            $question_id = $r['$question_id'];
+            $question_id = $r['question_id'];
             if(array_key_exists($question_id, $statis_idx)){
                 $err = ($r['user_answer'] != $r['right_answer']) ? 1 : 0;
                 $right = 1 - $err;
                 $t = $statis_idx[$question_id];
                 if(!isset($t['right_times']) || $t['right_times'] == 0){
-                    $has_err_num -= $right;
                     $t['right_times'] = 0;
                 }
                 if(!isset($t['err_times']) || $t['err_times'] == 0){
-                    $last_err_num += $err;
                     $t['err_times'] = 0;
                 }
                 $new_statis['practice_detail'][] = array('question_id' => $question_id,
@@ -567,8 +585,6 @@ class Exam extends TK_Controller {
             }else{
                 $do_num += 1;
                 $err = ($r['user_answer'] != $r['right_answer']) ? 1 : 0;
-                $has_err_num += 1 - $err;
-                $last_err_num += $err;
                 $new_statis['practice_detail'][] = array('question_id' => $question_id,
                             'last_answer' => $r['user_answer'],
                             'err_times' => $err,
@@ -581,6 +597,10 @@ class Exam extends TK_Controller {
                 $new_statis['practice_detail'][] = $s;
             }
         }
+        $do_num = 0;
+        $has_err_num = 0;
+        $last_err_num = 0;
+        $this->countRecord($new_statis['practice_detail'], $do_num, $has_err_num, $last_err_num);
         $new_statis['do_num'] = $do_num;
         $new_statis['has_err_num'] = $has_err_num;
         $new_statis['last_err_num'] = $last_err_num;
@@ -588,6 +608,8 @@ class Exam extends TK_Controller {
 
     private function makeUpdateRecordsAndStatis($practice_type, $exam, $doanswers, $old_record, $statis, &$new_record, &$new_statis){
         //part1: make practice records
+        $new_record = $old_record;
+        $new_record['uid'] = $statis['uid'];
         $new_record['practice_type'] = $practice_type;
         $new_record['exam_id'] = $exam['exam_id'];
         $new_record['exam_name'] = $exam['exam_name'];
@@ -595,13 +617,15 @@ class Exam extends TK_Controller {
         $new_record['subject_id'] = $exam['subject_id'];
         $new_record['question_num'] = $exam['question_num'];
 
-        $err_num = 0;
         $question_idx = array();
-        foreach ($exam['questions']['items'] as $q){
+        $e = (array)$exam['questions'];
+        foreach ($e['items'] as $q){
+            $q = (array)$q;
             $question_idx[$q['question_id']] = $q;
         }
         $old_record_idx = array();
-        foreach($old_record[records] as $r){
+        foreach($old_record['records'] as $r){
+            $r = (array)$r;
             $old_record_idx[$r['question_id']] = $r;
         }
 
@@ -623,10 +647,8 @@ class Exam extends TK_Controller {
          */
         $records = array();
         $answer_idx = array();
-        $do_num = $old_record['do_num'];
-        $has_err_num = $old_record['has_err_num'];
-        $last_err_num = $old_record['last_err_num'];
         foreach($doanswers as $a){
+            $a = (array)$a;
             $question_id = $a['question_id'];
             $answer_idx[$question_id] = $a;
             if(array_key_exists($question_id, $old_record_idx)){
@@ -634,11 +656,9 @@ class Exam extends TK_Controller {
                 $err = ($a['answer'] != $t['right_answer']) ? 1 : 0;
                 $right = 1- $err;
                 if(!isset($t['right_times']) || $t['right_times'] == 0){
-                    $has_err_num -= $right;
                     $t['right_times'] = 0;
                 }
                 if(!isset($t['err_times']) || $t['err_times'] == 0){
-                    $last_err_num += $err;
                     $t['err_times'] = 0;
                 }
                 $t['right_times'] += $right;
@@ -646,11 +666,9 @@ class Exam extends TK_Controller {
                 $t['user_answer'] = $a['answer'];
                 $records[] = $t;
             }else if(isset($question_idx[$question_id])){
-                $do_num ++;
                 $q = $question_idx[$question_id];
                 $err_times = $a['answer'] != $q['rightAnswer'] ? 1 : 0;
                 $right_time = 1 - $err_times;
-                $err_num += $err_times;
                 $records[] = array('question_id' => $question_id,
                     'exam_id' => $exam['exam_id'],
                     'question_type' => $q['question_type'],
@@ -674,35 +692,36 @@ class Exam extends TK_Controller {
                 $new_statis['practice_detail'][] = $o;
             }
         }
+        $do_num = 0;
+        $has_err_num = 0;
+        $last_err_num = 0;
+        $this->countRecord($records, $do_num, $has_err_num, $last_err_num);
         $new_record['do_num'] = $do_num;
         $new_record['has_err_num'] = $has_err_num;
         $new_record['last_err_num'] = $last_err_num;
+        $new_record['records'] = $records;
 
         //part2: update statis ret: do_num, has_err_num, last_err_num, practice_detail
         $statis_idx = array();
         if(isset($statis['practice_detail'])){
             foreach($statis['practice_detail'] as $s){
+                $s = (array)$s;
                 $statis_idx[$s['question_id']] = $s;
             }
         }
 
-        $do_num = $statis['do_num'];
-        $has_err_num = $statis['has_err_num'];
-        $last_err_num = $statis['last_err_num'];
         $new_statis = $statis;
         $new_statis['practice_detail'] = array();
         foreach($records as $r){
-            $question_id = $r['$question_id'];
+            $question_id = $r['question_id'];
             if(array_key_exists($question_id, $statis_idx)){
                 $err = ($r['user_answer'] != $r['right_answer']) ? 1 : 0;
                 $right = 1 - $err;
                 $t = $statis_idx[$question_id];
                 if(!isset($t['right_times']) || $t['right_times'] == 0){
-                    $has_err_num -= $right;
                     $t['right_times'] = 0;
                 }
                 if(!isset($t['err_times']) || $t['err_times'] == 0){
-                    $last_err_num += $err;
                     $t['err_times'] = 0;
                 }
                 $new_statis['practice_detail'][] = array('question_id' => $question_id,
@@ -710,10 +729,7 @@ class Exam extends TK_Controller {
                     'err_times' => $t['err_times'] + $err,
                     'right_times' => $t['right_times'] + $right);
             }else{
-                $do_num += 1;
                 $err = ($r['user_answer'] != $r['right_answer']) ? 1 : 0;
-                $has_err_num += 1 - $err;
-                $last_err_num += $err;
                 $new_statis['practice_detail'][] = array('question_id' => $question_id,
                     'last_answer' => $r['user_answer'],
                     'err_times' => $err,
@@ -726,6 +742,10 @@ class Exam extends TK_Controller {
                 $new_statis['practice_detail'][] = $s;
             }
         }
+        $do_num = 0;
+        $has_err_num = 0;
+        $last_err_num = 0;
+        $this->countRecord($new_statis['practice_detail'], $do_num, $has_err_num, $last_err_num);
         $new_statis['do_num'] = $do_num;
         $new_statis['has_err_num'] = $has_err_num;
         $new_statis['last_err_num'] = $last_err_num;

@@ -57,7 +57,7 @@ class Exam_model extends TK_Model {
                 'view_id' => $exam->view_id, //试卷组织视图id，例如章节方式展示,
                 'exam_state' => $exam->exam_state, //试卷状态,
                 'create_time' => $exam->create_time, //生成时间,
-                'update_time' => $exam->active_time, //更新时间,
+                'update_time' => $exam->update_time, //更新时间,
                 'questions' => json_decode(base64_decode($exam->questions)), //试题,
                 'question_num' => $exam->question_num,
                 'data_ver' => $exam->data_ver, //数据版本号,
@@ -104,7 +104,7 @@ class Exam_model extends TK_Model {
                 'exam_state' => $row->exam_state, //试卷状态,
                 'question_num' => $row->question_num,
                 'create_time' => $row->create_time, //生成时间,
-                'update_time' => $row->active_time, //更新时间,
+                'update_time' => $row->update_time, //更新时间,
                 'questions' => $row->questions, //试题,
                 'data_ver' => $row->data_ver, //数据版本号,
                 'data_mac' => $row->data_mac //数据摘要

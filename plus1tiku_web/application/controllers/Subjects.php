@@ -201,7 +201,7 @@ class Subjects extends TK_Controller {
                 'do_num' => $recd['do_num'],
                 'right_num' => $recd['do_num'] > $recd['has_err_num'] ? $recd['do_num'] - $recd['has_err_num'] : 0,
                 'last_practice_time' => $recd['last_practice_time'],
-                'score' => $recd['score']
+                'score' => $recd['scroll']
             );
             $exam_total_num += $item['question_num'];
             $process['list'][] = $item;
@@ -227,10 +227,11 @@ class Subjects extends TK_Controller {
             return ;
         }
 
+        $auth_id = 0;
         $auth_type = AuthType::GUEST_AUTH;
         $now = date('Y-m-d h:i:s', time());
         foreach($auths['records'] as $record){
-            if($record->state == AuthState::ACTIVED){
+            if($record['state'] == AuthState::ACTIVED){
                 if($now < $record['validity_end_time']){
                     $auth_type = $record['type'];
                     $auth_id = $record['auth_id'];

@@ -232,7 +232,7 @@ class Records_model extends TK_Model {
                         array(
                             'statis_id' => $statis['statis_id'],
                             'data_ver' => $statis['data_ver']));
-        if(!$conn->affacted_rows()){
+        if(!$conn->affected_rows()){
             $conn->trans_rollback();
             $ret = array('retcode'=>200104, 'retmsg'=>'update statis cas or empty');
             $this->log_err(array('insert_data'=>$new_statis, 'err'=>$conn->error()));
@@ -248,7 +248,7 @@ class Records_model extends TK_Model {
             $this->log_err(array('insert_data'=>$new_statis, 'err'=>$conn->error()));
             return $ret;
         }
-        $practice_id = $qry->row(0)->practice_id;
+        $practice_id = $qry->row(0)['practice_id'];
         if ($conn->trans_status() === FALSE){
             $conn->trans_rollback();
             $ret = array('retcode'=>200105, 'retmsg'=>'insert failed');
@@ -308,14 +308,14 @@ class Records_model extends TK_Model {
         $conn->trans_begin();
         $conn->update(self::TAB_NAME, $new_records,
                 array(
-                    'practice_id' => $statis['practice_id'],
-                    'data_ver' => $statis['data_ver']));
+                    'practice_id' => $record['practice_id'],
+                    'data_ver' => $record['data_ver']));
         $conn->update(self::TAB_NAME_STATIS,
             $new_statis,
             array(
                 'statis_id' => $statis['statis_id'],
                 'data_ver' => $statis['data_ver']));
-        if(!$conn->affacted_rows()){
+        if(!$conn->affected_rows()){
             $conn->trans_rollback();
             $ret = array('retcode'=>200104, 'retmsg'=>'update statis cas or empty');
             $this->log_err(array('insert_data'=>$new_statis, 'err'=>$conn->error()));
