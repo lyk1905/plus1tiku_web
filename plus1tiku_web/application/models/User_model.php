@@ -6,6 +6,11 @@ class User_model extends TK_Model {
     //新增用户，用于注册
     public function insertUser($phone, $email, $passwd){
         $conn = $this->load->database('tiku', TRUE);
+        if(!$conn->conn_id){
+            $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
+            $this->log_err(array('ret'=>$ret,'phone'=>$phone));
+            return $ret;
+        }
         $now = date('Y-m-d h:i:s', time());
         $insrt_data = array('user_name' => $phone,
             'acct_type' => 1,
@@ -18,13 +23,14 @@ class User_model extends TK_Model {
             'passwd' => $passwd,
             'data_ver'=>1);
 		if(!$conn->insert(self::TAB_NAME, $insrt_data)){
-            if($conn->error()->code == 1062){
-                $ret = array('retcode'=>200000, 'retmsg'=>$conn->error()->message);
-                $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$conn->error()));
+		    $err = $conn->error();
+            if($err['code'] == 1062){
+                $ret = array('retcode'=>200000, 'retmsg'=>$err['message']);
+                $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$err));
                 return $ret;
             }else{
-                $ret = array('retcode'=>200001, 'retmsg'=>$conn->error()->message);
-                $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$conn->error()));
+                $ret = array('retcode'=>200001, 'retmsg'=>$err['message']);
+                $this->log_err(array('insert_data'=>$insrt_data, 'err'=>$err));
                 return $ret;
             }
         }
@@ -34,8 +40,17 @@ class User_model extends TK_Model {
     //查询用户信息，用于登录
     public function getUserInfo($username){
         $conn = $this->load->database('tiku', TRUE);
+        if(!$conn->conn_id){
+            $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
+            $this->log_err(array('ret'=>$ret,'username'=>$username));
+            return $ret;
+        }
         $qry = $conn->get_where(self::TAB_NAME, array('user_name'=>$username));
-        if($qry->num_rows() > 1){
+        if(!$qry){
+            $ret = array('retcode'=>200010, 'retmsg'=>'qry failed');
+            $this->log_err(array('ret'=>$ret, 'ret_num'=>$qry->num_rows(), 'user_name'=>$username));
+            return $ret;
+        }else if($qry->num_rows() > 1){
             $ret = array('retcode'=>200002, 'retmsg'=>'qry result num err');
             $this->log_err(array('ret'=>$ret, 'ret_num'=>$qry->num_rows(), 'user_name'=>$username));
             return $ret;
@@ -48,6 +63,7 @@ class User_model extends TK_Model {
         $user = $qry->row(0);
         $ret = array('retcode' => 0,
             'user' => array(
+                'uid' => $user->uid,
                 'user_name' => $user->user_name,
                 'acct_type' => $user->acct_type,
                 'acct_state' => $user->acct_state,
@@ -77,7 +93,6 @@ class User_model extends TK_Model {
     };
      */
     public function updateUserInfo($user){
-        $conn = $this->load->database('tiku', TRUE);
         $now = date('Y-m-d h:i:s', time());
 
         $new = array('update_time'=>$now, 'data_ver' => ($user['data_ver'] + 1));
@@ -87,29 +102,36 @@ class User_model extends TK_Model {
         if(isset($user['acct_state']) && $user['acct_state'] > 0){
             $new['acct_state'] = $user['acct_state'];
         }
-        if(isset($user['mail']) && $user['mail'] > 0){
+        if(isset($user['mail']) && $user['mail'] != ''){
             $new['mail'] = $user['mail'];
         }
-        if(isset($user['last_login_time']) && $user['last_login_time'] > 0){
+        if(isset($user['last_login_time']) && $user['last_login_time'] != ''){
             $new['last_login_time'] = $user['last_login_time'];
         }
-        if(isset($user['last_choose_subject']) && $user['last_choose_subject'] > 0){
+        if(isset($user['last_choose_subject']) && $user['last_choose_subject'] != ''){
             $new['last_choose_subject'] = $user['last_choose_subject'];
         }
-        if(isset($user['passwd']) && $user['passwd'] > 0){
+        if(isset($user['passwd']) && $user['passwd'] != ''){
             $new['passwd'] = $user['passwd'];
+        }
+        $conn = $this->load->database('tiku', TRUE);
+        if(!$conn->conn_id){
+            $ret = array('retcode'=>200100, 'retmsg'=>'connect db failed');
+            $this->log_err(array('ret'=>$ret,'user'=>$user));
+            return $ret;
         }
 
         $conn->where('uid', $user['uid']);
         $conn->where('data_ver', $user['data_ver']);
         if(!$conn->update(self::TAB_NAME, $new)){
+            $err = $conn->error();
             if($conn->affected_rows() === 0){
                 $ret = array('retcode'=>200004, 'retmsg'=> 'user not exist or cas err');
-                $this->log_err(array('ret'=>$ret, 'user'=>$user, 'err'=>$conn->error()));
+                $this->log_err(array('ret'=>$ret, 'user'=>$user, 'err'=>$err));
                 return $ret;
             }else{
                 $ret = array('retcode'=>200005, 'retmsg'=> 'update err');
-                $this->log_err(array('ret'=>$ret, 'user'=>$user, 'err'=>$conn->error()));
+                $this->log_err(array('ret'=>$ret, 'user'=>$user, 'err'=>$err));
                 return $ret;
             }
         }
